@@ -9,3 +9,4 @@ reportlab
 twilio
 django-unfold
 gunicorn
+whitenoise

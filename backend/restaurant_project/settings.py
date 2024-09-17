@@ -10,6 +10,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 env = Env()
 env.read_env()
+import os
 
 
 SECRET_KEY = env.str("SECRET_KEY")
@@ -26,6 +27,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    'whitenoise.runserver_nostatic',
     "rest_framework",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
@@ -33,6 +35,7 @@ INSTALLED_APPS = [
     "restaurant_app.apps.RestaurantAppConfig",
     "delivery_drivers.apps.DeliveryDriversConfig",
     "transactions_app.apps.TransactionsAppConfig",
+    
 ]
 
 REST_FRAMEWORK = {
@@ -59,6 +62,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -130,11 +134,9 @@ USE_I18N = True
 USE_TZ = True
 
 
-STATIC_URL = "/static/"
-STATIC_ROOT = BASE_DIR / "staticfiles"
-STATICFILES_DIRS = [
-    BASE_DIR / "static",
-]
+STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_STORAGE="whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
