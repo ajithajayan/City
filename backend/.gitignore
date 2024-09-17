@@ -17,7 +17,7 @@ venv/
 # migrations/
 
 # Ignore static files and test data
-/staticfiles/
+# /staticfiles/
 test_data.json
 
 db.sqlite3
