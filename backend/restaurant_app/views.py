@@ -27,8 +27,7 @@ User = get_user_model()
 
 
 class CreateSuperUser(APIView):
-    permission_classes = [IsAdminUser]  # Only allow admins to create superusers
-    
+
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -38,7 +37,6 @@ class CreateSuperUser(APIView):
             return Response({'error': 'Username, email, and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            # Create a new superuser
             user = User.objects.create_superuser(username=username, email=email, password=password)
             return Response({'message': f'Superuser {username} created successfully.'}, status=status.HTTP_201_CREATED)
         except ValidationError as e:
@@ -46,7 +44,6 @@ class CreateSuperUser(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-
 class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
     permission_classes = (permissions.AllowAny,)

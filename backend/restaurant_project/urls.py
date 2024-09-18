@@ -51,7 +51,6 @@ from transactions_app.views import (CashCountSheetViewSet, NatureGroupViewSet,
 router = DefaultRouter()
 
 router.register(r"login", LoginViewSet, basename="login")
-router.register(r"create-superuser", CreateSuperUser, basename="create_superuser")
 router.register(r"dishes", DishViewSet, basename="dishes")
 router.register(r'variants', DishVariantViewSet, basename="variants")
 router.register(r"categories", CategoryViewSet, basename="categories")
@@ -104,7 +103,7 @@ urlpatterns = [
     path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("api/logout/", LogoutView.as_view({"post": "logout"}), name="logout"),
     path("api/search-dishes/", SearchDishesAPIView.as_view(), name="search_dishes"),  # Include the search API endpoint
-
+    path('create-superuser/', CreateSuperUser.as_view(), name='create_superuser'),
 
     # Register the new Cancel Order API
     path("api/bills/<int:bill_id>/cancel_order/", CancelOrderByBillView.as_view(), name="cancel-order-by-bill"),
