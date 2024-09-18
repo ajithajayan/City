@@ -21,13 +21,14 @@ from restaurant_app.serializers import *
 from rest_framework.decorators import api_view
 from rest_framework.permissions import IsAdminUser
 from django.core.exceptions import ValidationError
-
+from rest_framework.permissions import AllowAny
 
 User = get_user_model()
 
 
 class CreateSuperUser(APIView):
-
+    permission_classes = [AllowAny]
+    
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
