@@ -11,6 +11,10 @@ from restaurant_app.models import *
 
 User = get_user_model()
 
+class SuperUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email', 'is_staff', 'is_superuser', 'date_joined']
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)

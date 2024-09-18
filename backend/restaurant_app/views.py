@@ -28,7 +28,7 @@ User = get_user_model()
 
 class CreateSuperUser(APIView):
     permission_classes = [AllowAny]
-    
+
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -44,6 +44,11 @@ class CreateSuperUser(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+class SuperUserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = SuperUserSerializer
+    permission_classes = [AllowAny]         
         
 class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer

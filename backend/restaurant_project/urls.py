@@ -32,6 +32,7 @@ from restaurant_app.views import (
     CancelOrderByBillView,
     CreditTransactionViewSet,
     CreateSuperUser,
+    SuperUserViewSet
 )
 from delivery_drivers.views import (
     DeliveryDriverViewSet,
@@ -51,6 +52,7 @@ from transactions_app.views import (CashCountSheetViewSet, NatureGroupViewSet,
 router = DefaultRouter()
 
 router.register(r"login", LoginViewSet, basename="login")
+router.register(r'superusers', SuperUserViewSet, basename='superuser')
 router.register(r"dishes", DishViewSet, basename="dishes")
 router.register(r'variants', DishVariantViewSet, basename="variants")
 router.register(r"categories", CategoryViewSet, basename="categories")
