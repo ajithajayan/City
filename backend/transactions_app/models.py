@@ -1,3 +1,4 @@
+
 from django.db import models
 from django.utils import timezone
 import datetime
@@ -39,11 +40,11 @@ class Transaction(models.Model):
         (DEBIT, 'Debit'),
         (CREDIT, 'Credit'),
     ]
-    # TRANSACTION_CHOICES = [
-    #     ('payin', 'Payin'),
-    #     ('payout', 'Payout'),
-    # ]
-    # transaction_type = models.CharField(max_length=10, choices=TRANSACTION_CHOICES)
+    TRANSACTION_CHOICES = [
+        ('payin', 'Payin'),
+        ('payout', 'Payout'),
+    ]
+    transaction_type = models.CharField(max_length=10, choices=TRANSACTION_CHOICES, blank=True)
     ledger = models.ForeignKey(Ledger, on_delete=models.CASCADE, related_name='ledger_transactions')  
     particulars = models.ForeignKey(Ledger, on_delete=models.CASCADE, related_name='particulars_transactions') 
     date = models.DateField()
@@ -231,4 +232,5 @@ class CashCountSheetItems(models.Model):
 
     def __str__(self):
         return f"{self.currency} - {self.nos} - {self.amount}"
+
 

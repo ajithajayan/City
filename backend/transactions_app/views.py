@@ -1,7 +1,9 @@
+
 from rest_framework import viewsets,status
 from django.db import transaction 
 from django.db.models import Sum, Q
 from datetime import datetime
+from django.db.models import F, Min
 
 from .models import (
     CashCountSheet,
@@ -83,32 +85,6 @@ class LedgerViewSet(viewsets.ModelViewSet):
 class TransactionViewSet(viewsets.ModelViewSet):
     queryset = Transaction.objects.all()
     serializer_class = TransactionSerializer
-
-    # @transaction.atomic
-    # def create(self, request, *args, **kwargs):
-    #     transaction1_data = request.data.get('transaction1')
-    #     transaction2_data = request.data.get('transaction2')
-
-    #     if not transaction1_data or not transaction2_data:
-    #         return Response({"error": "Both transaction1 and transaction2 are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     # Generate the next voucher number
-    #     last_transaction = Transaction.objects.order_by('-voucher_no').first()
-    #     next_voucher_no = (last_transaction.voucher_no + 1) if last_transaction else 1
-
-    #     # Assign the generated voucher number to both transactions
-    #     transaction1_data['voucher_no'] = next_voucher_no
-    #     transaction2_data['voucher_no'] = next_voucher_no
-
-    #     serializer1 = self.get_serializer(data=transaction1_data)
-    #     serializer1.is_valid(raise_exception=True)
-    #     self.perform_create(serializer1)
-
-    #     serializer2 = self.get_serializer(data=transaction2_data)
-    #     serializer2.is_valid(raise_exception=True)
-    #     self.perform_create(serializer2)
-
-    #     return Response(serializer1.data, status=status.HTTP_201_CREATED) 
 
     @transaction.atomic
     def create(self, request, *args, **kwargs):
@@ -296,7 +272,36 @@ class TransactionViewSet(viewsets.ModelViewSet):
             'net_profit': net_profit,
             'net_loss': net_loss,
         })
+        
+    @action(detail=False, methods=['get'])
+    def filter_transaction_by_transaction_type(self, request):
+        transaction_type = request.query_params.get('transaction_type', None)
+        
+        if transaction_type:
+            transactions = self.queryset.filter(transaction_type=transaction_type)
+        else:
+            transactions = self.queryset
 
+
+        filtered_transactions = transactions.filter(
+            id__in=transactions.values('voucher_no')
+                              .annotate(min_id=Min('id'))
+                              .values('min_id')
+        )
+
+        serializer = self.get_serializer(filtered_transactions, many=True)
+        return Response(serializer.data)
+    
+    @action(detail=False, methods=['get'])
+    def filter_transaction_by_voucher_no(self, request):
+        voucher_no = request.query_params.get('voucher_no', None)
+
+        if voucher_no is not None:
+            filtered_transactions = self.queryset.filter(voucher_no=voucher_no)
+            serializer = self.get_serializer(filtered_transactions, many=True)
+            return Response(serializer.data)
+        else:
+            return Response({"error": "Please provide a voucher_no to filter by."}, status=400)
 
 
 

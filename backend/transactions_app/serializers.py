@@ -1,3 +1,4 @@
+
 from rest_framework import serializers
 from .models import (
     NatureGroup,
@@ -158,25 +159,32 @@ class CashCountSheetSerializer(serializers.ModelSerializer):
         return cash_sheet
 
     def update(self, instance, validated_data):
-        # Update CashCountSheet fields
+        # Update main CashCountSheet fields
         instance.voucher_number = validated_data.get('voucher_number', instance.voucher_number)
-        instance.amount = validated_data.get('amount', instance.amount)
+        instance.created_date = validated_data.get('created_date', instance.created_date)
         instance.transaction_type = validated_data.get('transaction_type', instance.transaction_type)
         instance.save()
 
-        # Update or create items
+        # Update or create related CashCountSheetItems
         items_data = validated_data.pop('items', [])
+        existing_items = {item.currency: item for item in instance.items.all()}  # Track existing items by currency
+
         for item_data in items_data:
-            item_instance = CashCountSheetItems.objects.filter(ref=instance, currency=item_data['currency']).first()
-            if item_instance:
-                # Update the existing item
+            currency = item_data['currency']
+            if currency in existing_items:
+                # Update existing item
+                item_instance = existing_items[currency]
                 item_instance.nos = item_data.get('nos', item_instance.nos)
                 item_instance.amount = item_data.get('amount', item_instance.amount)
                 item_instance.save()
             else:
-                # Create new item if not exists
+                # Create a new item if it doesn't exist
                 CashCountSheetItems.objects.create(ref=instance, **item_data)
-        
+
+        # Recalculate the total amount after items have been updated/created
+        instance.amount = instance.get_total_amount()
+        instance.save()
+
         return instance
 
 
