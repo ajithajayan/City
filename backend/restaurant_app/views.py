@@ -19,10 +19,33 @@ from delivery_drivers.serializers import DeliveryOrderSerializer
 from restaurant_app.models import *
 from restaurant_app.serializers import *
 from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAdminUser
+from django.core.exceptions import ValidationError
 
 
 User = get_user_model()
 
+
+class CreateSuperUser(APIView):
+    permission_classes = [IsAdminUser]  # Only allow admins to create superusers
+    
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not username or not password or not email:
+            return Response({'error': 'Username, email, and password are required.'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Create a new superuser
+            user = User.objects.create_superuser(username=username, email=email, password=password)
+            return Response({'message': f'Superuser {username} created successfully.'}, status=status.HTTP_201_CREATED)
+        except ValidationError as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 
 class LoginViewSet(viewsets.ModelViewSet, TokenObtainPairView):
     serializer_class = LoginSerializer
